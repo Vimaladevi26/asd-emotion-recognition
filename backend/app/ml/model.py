@@ -10,32 +10,30 @@ import torch.nn as nn
 from PIL import Image
 from torchvision import models, transforms
 
-# FER2013 CSV label order (emotion column 0–6). This is the standard Kaggle/dataset
-# encoding and matches typical MobileNetV2 FER2013 training notebooks.
-# NOTE: The checkpoint does not store class names; this order is inferred from
-# FER2013 convention, not embedded metadata. If predictions look systematically
-# wrong, verify against your Colab training notebook's label mapping.
+# Class indices from Colab training: datasets.ImageFolder sorts subfolder names
+# alphabetically (fer2013_data/train). Order verified against the actual notebook —
+# NOT the FER2013 CSV emotion column order (which differs at indices 4–6).
 EMOTION_LABELS: list[str] = [
     "angry",
     "disgust",
     "fear",
     "happy",
+    "neutral",
     "sad",
     "surprise",
-    "neutral",
 ]
 
 MODEL_PATH = Path(__file__).resolve().parent / "best_fer_model.pth"
-INPUT_SIZE = (48, 48)
+INPUT_SIZE = (224, 224)
 
-# ImageNet normalization (standard for MobileNetV2 transfer learning).
+# Matches Colab test_transform (ImageNet stats for MobileNetV2 transfer learning).
 _IMAGENET_MEAN = [0.485, 0.456, 0.406]
 _IMAGENET_STD = [0.229, 0.224, 0.225]
 
 _TRANSFORM = transforms.Compose(
     [
-        transforms.Resize(INPUT_SIZE),
         transforms.Grayscale(num_output_channels=3),
+        transforms.Resize(INPUT_SIZE),
         transforms.ToTensor(),
         transforms.Normalize(mean=_IMAGENET_MEAN, std=_IMAGENET_STD),
     ]
@@ -76,9 +74,9 @@ def _load_model() -> nn.Module:
     return model
 
 
-def predict_emotion(image_path: str) -> dict:
+def predict_emotion_from_pil(image: Image.Image) -> dict:
     """
-    Run inference on a single image file.
+    Run inference on an in-memory PIL image (cropped face expected).
 
     Returns:
         {
@@ -87,12 +85,7 @@ def predict_emotion(image_path: str) -> dict:
             "all_scores": {label: probability, ...},
         }
     """
-    path = Path(image_path)
-    if not path.is_file():
-        raise FileNotFoundError(f"Image not found: {path}")
-
     model = _load_model()
-    image = Image.open(path)
     tensor = _TRANSFORM(image).unsqueeze(0)
 
     with torch.no_grad():
@@ -110,3 +103,21 @@ def predict_emotion(image_path: str) -> dict:
         "confidence": scores[best_label],
         "all_scores": scores,
     }
+
+
+def predict_emotion(image_path: str) -> dict:
+    """
+    Run inference on a single image file.
+
+    Returns:
+        {
+            "emotion": str,
+            "confidence": float,
+            "all_scores": {label: probability, ...},
+        }
+    """
+    path = Path(image_path)
+    if not path.is_file():
+        raise FileNotFoundError(f"Image not found: {path}")
+
+    return predict_emotion_from_pil(Image.open(path))

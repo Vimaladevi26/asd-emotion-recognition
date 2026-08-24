@@ -1,0 +1,41 @@
+"""End-to-end pipeline: raw image -> face detect/crop -> emotion prediction."""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+from app.ml.face_detect import detect_and_crop_face
+from app.ml.model import predict_emotion_from_pil
+
+NO_FACE_RESULT = {
+    "face_found": False,
+    "emotion": None,
+    "confidence": None,
+    "all_scores": None,
+    "bbox": None,
+}
+
+
+def predict_emotion_from_raw_image(image_path: str) -> dict:
+    """
+    Detect a face in a raw photo, crop it, and predict the emotion.
+
+    Returns a merged dict with face detection metadata and prediction scores.
+    """
+    path = Path(image_path)
+    if not path.is_file():
+        raise FileNotFoundError(f"Image not found: {path}")
+
+    detection = detect_and_crop_face(path)
+    if not detection["face_found"]:
+        return dict(NO_FACE_RESULT)
+
+    prediction = predict_emotion_from_pil(detection["cropped_face"])
+
+    return {
+        "face_found": True,
+        "bbox": detection["bbox"],
+        "emotion": prediction["emotion"],
+        "confidence": prediction["confidence"],
+        "all_scores": prediction["all_scores"],
+    }
