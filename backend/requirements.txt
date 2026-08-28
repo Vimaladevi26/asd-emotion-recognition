@@ -23,3 +23,4 @@ torch==2.13.0
 torchvision==0.28.0
 opencv-python==4.14.0.94
 pytest==8.4.2
+transformers==5.15.1

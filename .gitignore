@@ -9,3 +9,4 @@ build/
 *.pth
 *.h5
 kaggle.json
+docs/screenshots/*.jpg

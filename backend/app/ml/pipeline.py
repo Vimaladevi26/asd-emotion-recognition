@@ -7,7 +7,7 @@ from pathlib import Path
 from PIL import Image
 
 from app.ml.face_detect import detect_and_crop_face
-from app.ml.model import predict_emotion_from_pil
+from app.ml.vit_model import predict_emotion_vit
 
 NO_FACE_RESULT = {
     "face_found": False,
@@ -28,7 +28,7 @@ def predict_emotion_from_raw_pil(image: Image.Image) -> dict:
     if not detection["face_found"]:
         return dict(NO_FACE_RESULT)
 
-    prediction = predict_emotion_from_pil(detection["cropped_face"])
+    prediction = predict_emotion_vit(detection["cropped_face"])
 
     return {
         "face_found": True,
