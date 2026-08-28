@@ -95,3 +95,13 @@ So **~55–62% accuracy is in line with what this dataset supports**, especially
 
 - `docs/confusion_matrix.png` — per-class error patterns from training evaluation
 - `backend/tests/` — pytest guards for label order, input size, and response shape
+
+---
+
+## Quiz mode (FR10) — 6 of 7 emotions
+
+**What's This?** quiz reference images (`frontend/public/quiz/`) cover **6 emotions**: angry, fear, happy, neutral, sad, surprise.
+
+**Disgust is not included in v1.** The custom flashcard source set has no disgust card, so there is no reference image yet. The live ViT model still predicts all 7 classes in Show Me mode; only the quiz's reference-image set is incomplete.
+
+When quiz UI is built, either skip disgust as a quiz prompt or add a disgust flashcard later and update `manifest.json`.

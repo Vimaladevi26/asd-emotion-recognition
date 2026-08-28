@@ -1,0 +1,8 @@
+{
+  "angry": ["angry.png"],
+  "fear": ["fear.png"],
+  "happy": ["happy.png"],
+  "neutral": ["neutral.png"],
+  "sad": ["sad.png"],
+  "surprise": ["surprise.png"]
+}
