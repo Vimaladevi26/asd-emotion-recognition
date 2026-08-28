@@ -1,0 +1,76 @@
+.practice-session {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem 1.5rem;
+  background: #ffffff;
+  color: #1a1a1a;
+  min-height: 100svh;
+  box-sizing: border-box;
+}
+
+.practice-session__title {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.practice-session__webcam-wrap {
+  border: 4px solid #2563eb;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+  line-height: 0;
+}
+
+.practice-session__webcam-wrap video {
+  display: block;
+  width: 100%;
+  max-width: 480px;
+  height: auto;
+}
+
+.practice-session__result {
+  text-align: center;
+  min-height: 6rem;
+}
+
+.practice-session__emotion {
+  margin: 0;
+  font-size: 3rem;
+  font-weight: 700;
+  color: #1e40af;
+  text-transform: capitalize;
+  line-height: 1.2;
+}
+
+.practice-session__confidence {
+  margin: 0.5rem 0 0;
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.practice-session__no-face {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #b45309;
+}
+
+.practice-session__waiting {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #6b7280;
+}
+
+.practice-session__error {
+  margin: 0;
+  font-size: 1rem;
+  color: #b91c1c;
+  max-width: 28rem;
+}
