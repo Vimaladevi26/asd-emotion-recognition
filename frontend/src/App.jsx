@@ -1,7 +1,7 @@
-import PracticeSession from './pages/PracticeSession.jsx'
+import QuizSession from './pages/QuizSession.jsx'
 
 function App() {
-  return <PracticeSession />
+  return <QuizSession />
 }
 
 export default App
