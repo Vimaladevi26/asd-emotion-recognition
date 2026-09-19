@@ -1,9 +1,19 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import predict
+from app.db import init_db
+from app.routers import children, dashboard, personalization, predict, sessions
 
-app = FastAPI(title="ASD Emotion Recognition API")
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    init_db()
+    yield
+
+
+app = FastAPI(title="ASD Emotion Recognition API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -16,6 +26,10 @@ app.add_middleware(
 )
 
 app.include_router(predict.router)
+app.include_router(children.router)
+app.include_router(sessions.router)
+app.include_router(personalization.router)
+app.include_router(dashboard.router)
 
 
 @app.get("/")

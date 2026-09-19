@@ -24,3 +24,5 @@ torchvision==0.28.0
 opencv-python==4.14.0.94
 pytest==8.4.2
 transformers==5.15.1
+grad-cam==1.5.4
+sqlalchemy==2.0.43
