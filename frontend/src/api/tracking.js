@@ -55,7 +55,7 @@ export async function postAttempt(sessionId, attempt) {
 let childBootstrapPromise = null
 
 export async function ensureChild() {
-  const stored = getStoredChildId()
+  const stored = localStorage.getItem('child_id')
   if (stored) {
     return Number(stored)
   }
@@ -63,11 +63,12 @@ export async function ensureChild() {
   if (!childBootstrapPromise) {
     childBootstrapPromise = postChild('Child')
       .then((child) => {
-        storeChildId(child.id)
+        localStorage.setItem('child_id', String(child.id))
         return child.id
       })
-      .finally(() => {
+      .catch((error) => {
         childBootstrapPromise = null
+        throw error
       })
   }
 

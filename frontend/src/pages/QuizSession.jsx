@@ -22,6 +22,10 @@ export default function QuizSession() {
     async function initQuiz() {
       try {
         const loadedManifest = await loadQuizManifest()
+        if (cancelled) {
+          return
+        }
+
         let firstQuestion = pickRandomQuestion(loadedManifest)
 
         try {

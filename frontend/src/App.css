@@ -32,3 +32,24 @@
   color: #ffffff;
   background: #2563eb;
 }
+
+.app-nav__role {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.5rem 1rem;
+  border: 2px solid #6b7280;
+  border-radius: 10px;
+  color: #374151;
+  background: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.app-nav__role--on {
+  color: #ffffff;
+  background: #374151;
+  border-color: #374151;
+}
