@@ -8,5 +8,8 @@ build/
 .DS_Store
 *.pth
 *.h5
+*.db
 kaggle.json
 docs/screenshots/*.jpg
+*.pptx
+*.pdf
