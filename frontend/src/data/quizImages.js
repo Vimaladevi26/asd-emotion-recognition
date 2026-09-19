@@ -47,3 +47,14 @@ export function pickRandomQuestion(manifest) {
 
   return { emotion, imageSrc }
 }
+
+/** Prefer one emotion when personalization supplies it; otherwise random. */
+export function pickQuestionForEmotion(manifest, emotionId) {
+  if (emotionId && manifest[emotionId]?.length) {
+    return {
+      emotion: emotionId,
+      imageSrc: getRandomImageForEmotion(manifest, emotionId),
+    }
+  }
+  return pickRandomQuestion(manifest)
+}

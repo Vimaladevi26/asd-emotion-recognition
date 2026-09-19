@@ -8,7 +8,7 @@
   padding: 2rem 1.5rem;
   background: #ffffff;
   color: #1a1a1a;
-  min-height: 100svh;
+  min-height: 0;
   box-sizing: border-box;
 }
 
@@ -19,7 +19,15 @@
   color: #1a1a1a;
 }
 
+.practice-session__prompt {
+  margin: 0;
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #1e40af;
+}
+
 .practice-session__webcam-wrap {
+  position: relative;
   border: 4px solid #2563eb;
   border-radius: 12px;
   overflow: hidden;
@@ -32,6 +40,44 @@
   width: 100%;
   max-width: 480px;
   height: auto;
+}
+
+.practice-session__countdown {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  font-size: 6rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.35);
+  line-height: 1;
+}
+
+.practice-session__ready {
+  min-width: 16rem;
+  min-height: 4rem;
+  padding: 0.75rem 1.5rem;
+  border: 3px solid #2563eb;
+  border-radius: 12px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 1.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.practice-session__ready:hover {
+  background: #1d4ed8;
+}
+
+.practice-session__retry {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1e40af;
 }
 
 .practice-session__result {
@@ -73,4 +119,46 @@
   font-size: 1rem;
   color: #b91c1c;
   max-width: 28rem;
+}
+
+.practice-session__feedback {
+  margin: 0;
+  padding: 0.75rem 1.25rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  border-radius: 12px;
+}
+
+.practice-session__feedback--correct {
+  color: #166534;
+  background: #ecfdf5;
+  border: 3px solid #86efac;
+}
+
+.practice-session__feedback--encourage {
+  color: #1e40af;
+  background: #eff6ff;
+  border: 3px solid #93c5fd;
+}
+
+.practice-session__why {
+  margin: 1rem 0 0;
+  padding: 0;
+}
+
+.practice-session__why-image {
+  display: block;
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  margin: 0 auto;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+}
+
+.practice-session__why-caption {
+  margin-top: 0.35rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #374151;
 }
