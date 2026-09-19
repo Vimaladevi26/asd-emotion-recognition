@@ -16,6 +16,7 @@ def test_pipeline_no_face_returns_structured_none_fields():
     assert result["confidence"] is None
     assert result["all_scores"] is None
     assert result["bbox"] is None
+    assert result["heatmap_base64"] is None
 
 
 def test_predict_emotion_vit_returns_valid_shape_and_scores():
@@ -42,3 +43,5 @@ def test_pipeline_happy_face_crop_predicts_happy_with_high_confidence():
     assert result["emotion"] == "happy"
     assert result["confidence"] >= 0.9
     assert result["bbox"] is not None
+    assert isinstance(result["heatmap_base64"], str)
+    assert result["heatmap_base64"]

@@ -7,6 +7,7 @@ from pathlib import Path
 from PIL import Image
 
 from app.ml.face_detect import detect_and_crop_face
+from app.ml.gradcam import compute_gradcam_overlay
 from app.ml.vit_model import predict_emotion_vit
 
 NO_FACE_RESULT = {
@@ -15,6 +16,7 @@ NO_FACE_RESULT = {
     "confidence": None,
     "all_scores": None,
     "bbox": None,
+    "heatmap_base64": None,
 }
 
 
@@ -29,6 +31,10 @@ def predict_emotion_from_raw_pil(image: Image.Image) -> dict:
         return dict(NO_FACE_RESULT)
 
     prediction = predict_emotion_vit(detection["cropped_face"])
+    heatmap_base64 = compute_gradcam_overlay(
+        detection["cropped_face"],
+        prediction["emotion"],
+    )
 
     return {
         "face_found": True,
@@ -36,6 +42,7 @@ def predict_emotion_from_raw_pil(image: Image.Image) -> dict:
         "emotion": prediction["emotion"],
         "confidence": prediction["confidence"],
         "all_scores": prediction["all_scores"],
+        "heatmap_base64": heatmap_base64,
     }
 
 

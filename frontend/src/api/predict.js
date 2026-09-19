@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://127.0.0.1:8000'
+import { API_BASE_URL, parseApiError } from './config'
 
 export async function postPredict(base64Image) {
   const response = await fetch(`${API_BASE_URL}/predict`, {
@@ -8,16 +8,7 @@ export async function postPredict(base64Image) {
   })
 
   if (!response.ok) {
-    let detail = `Request failed (${response.status})`
-    try {
-      const body = await response.json()
-      if (body.detail) {
-        detail = typeof body.detail === 'string' ? body.detail : JSON.stringify(body.detail)
-      }
-    } catch {
-      // ignore JSON parse errors
-    }
-    throw new Error(detail)
+    throw await parseApiError(response)
   }
 
   return response.json()
