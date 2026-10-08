@@ -1,26 +1,70 @@
 .dashboard {
   flex: 1;
-  width: 100%;
-  max-width: 72rem;
+  width: min(1120px, 100%);
   margin: 0 auto;
-  padding: 1.5rem 1.25rem 2.5rem;
-  box-sizing: border-box;
-  background: #ffffff;
-  color: #1a1a1a;
+  color: #0f2744;
+}
+
+.dashboard__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: end;
+  margin-bottom: 1.1rem;
+}
+
+.dashboard__eyebrow {
+  margin: 0 0 0.3rem;
+  color: #1d6fd8;
+  font-size: 0.78rem;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .dashboard__title {
-  margin: 0 0 1rem;
-  font-size: 1.75rem;
-  font-weight: 600;
+  margin: 0 0 0.35rem;
+  font-family: var(--display), Georgia, serif;
+  font-size: clamp(1.7rem, 3vw, 2.2rem);
+  font-weight: 700;
+}
+
+.dashboard__lead {
+  margin: 0;
+  color: #5b6f88;
+}
+
+.dashboard__header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  align-items: center;
+}
+
+.dashboard__back {
+  color: #1d6fd8;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.dashboard__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem 1.2rem;
+  align-items: center;
+  margin-bottom: 1.1rem;
+  padding: 0.9rem 1rem;
+  background: #fff;
+  border: 1px solid #d7e3f2;
+  border-radius: 14px;
 }
 
 .dashboard__selector {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
-  font-weight: 600;
+  gap: 0.65rem;
+  font-weight: 700;
 }
 
 .dashboard__selector select {
@@ -28,16 +72,66 @@
   min-width: 14rem;
   padding: 0.35rem 0.75rem;
   font-size: 1rem;
-  border: 2px solid #2563eb;
-  border-radius: 8px;
-  background: #ffffff;
+  border: 1.5px solid #b7d1f5;
+  border-radius: 10px;
+  background: #f8fbff;
+  color: #0f2744;
+}
+
+.dashboard__selected {
+  margin: 0;
+  color: #5b6f88;
+}
+
+.dashboard__export {
+  margin-left: auto;
+  min-height: 2.5rem;
+  padding: 0.45rem 0.95rem;
+  border-radius: 10px;
+  border: 1.5px solid #1d6fd8;
+  background: #1d6fd8;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dashboard__export:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dashboard__summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.1rem;
+}
+
+.dashboard__summary article {
+  background: linear-gradient(165deg, #f8fbff, #eef6ff);
+  border: 1px solid #d7e3f2;
+  border-radius: 14px;
+  padding: 0.95rem 0.85rem;
+  text-align: center;
+}
+
+.dashboard__summary strong {
+  display: block;
+  font-size: 1.5rem;
+  color: #1d6fd8;
+}
+
+.dashboard__summary span {
+  color: #5b6f88;
+  font-weight: 600;
+  font-size: 0.9rem;
 }
 
 .dashboard__grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1.25rem;
-  margin-bottom: 1.25rem;
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
 @media (min-width: 840px) {
@@ -47,32 +141,50 @@
 }
 
 .dashboard__panel {
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 1rem 1rem 0.75rem;
-  margin-bottom: 1.25rem;
+  border: 1px solid #d7e3f2;
+  border-radius: 16px;
+  padding: 1rem 1rem 0.85rem;
+  margin-bottom: 1rem;
   background: #ffffff;
+  box-shadow: 0 8px 20px rgba(15, 39, 68, 0.04);
 }
 
 .dashboard__heading {
   margin: 0 0 0.75rem;
-  font-size: 1.2rem;
-  font-weight: 600;
+  font-size: 1.15rem;
+  font-weight: 700;
 }
 
 .dashboard__chart {
   width: 100%;
-  min-height: 280px;
+  min-height: 260px;
 }
 
 .dashboard__status {
   margin: 0;
-  color: #4b5563;
+  color: #5b6f88;
 }
 
 .dashboard__error {
   margin: 0 0 1rem;
   color: #b91c1c;
+  font-weight: 650;
+}
+
+.dashboard__empty {
+  padding: 1.2rem;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid #d7e3f2;
+}
+
+.dashboard__empty a {
+  color: #1d6fd8;
+  font-weight: 700;
+}
+
+.dashboard__table-wrap {
+  overflow-x: auto;
 }
 
 .dashboard__table {
@@ -84,11 +196,42 @@
 .dashboard__table th,
 .dashboard__table td {
   text-align: left;
-  padding: 0.6rem 0.5rem;
-  border-bottom: 1px solid #e5e7eb;
+  padding: 0.7rem 0.55rem;
+  border-bottom: 1px solid #e7eef7;
 }
 
 .dashboard__table th {
-  font-weight: 600;
-  color: #374151;
+  font-weight: 700;
+  color: #475569;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.6rem;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.pill--ok {
+  background: #d1fae5;
+  color: #047857;
+}
+
+.pill--bad {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+@media (max-width: 720px) {
+  .dashboard__summary {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .dashboard__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }

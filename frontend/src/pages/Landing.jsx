@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
+import { useSiteJump } from '../components/SiteLayout.jsx'
 import heroImage from '../assets/landing-hero.jpg'
-import './Landing.css'
 
 const EMOTIONS = [
   { label: 'Happy', value: 0.82, color: '#22c55e' },
@@ -9,94 +9,129 @@ const EMOTIONS = [
   { label: 'Angry', value: 0.02, color: '#ef4444' },
 ]
 
-function Landing() {
+const OFFERS = [
+  {
+    title: 'Emotion quiz',
+    text: 'Match a face photo to the right emotion. Answers are saved.',
+    sectionId: 'features',
+  },
+  {
+    title: 'Webcam practice',
+    text: 'Show an expression on camera. The app checks if it matches.',
+    sectionId: 'how-it-works',
+  },
+  {
+    title: 'Therapist dashboard',
+    text: 'See accuracy by emotion and by day for each child.',
+    sectionId: 'features',
+  },
+]
+
+export default function HomeChapter() {
+  const jump = useSiteJump()
+
   return (
-    <div className="landing">
-      <header className="landing-nav landing-nav--simple">
-        <a href="#top" className="landing-brand">
-          <span className="landing-brand__mark" aria-hidden="true">
-            <svg viewBox="0 0 40 40" width="36" height="36">
-              <defs>
-                <linearGradient id="brandGrad" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor="#1d6fd8" />
-                  <stop offset="100%" stopColor="#0ea5a4" />
-                </linearGradient>
-              </defs>
-              <path
-                fill="url(#brandGrad)"
-                d="M20 36s-12.5-7.8-12.5-17.2C7.5 12.2 12 8 16.8 8c2.4 0 4.4 1.1 5.2 2.8C22.8 9.1 24.8 8 27.2 8 32 8 36.5 12.2 36.5 18.8 36.5 28.2 20 36 20 36z"
-              />
-              <circle cx="20" cy="18" r="6.2" fill="#eff8ff" opacity="0.95" />
-              <path
-                d="M17.2 18.2c0-1.6 1-2.6 2.8-2.6s2.8 1 2.8 2.6c0 1.8-1.2 2.7-2.8 3.8-1.6-1.1-2.8-2-2.8-3.8z"
-                fill="#1d6fd8"
-              />
-            </svg>
-          </span>
-          <span className="landing-brand__text">
-            <strong>ASD Emotion</strong>
-            <small>Understand · Support · Grow</small>
-          </span>
-        </a>
-
-        <Link to="/quiz" className="btn btn--primary landing-nav__cta">
-          Get Started
-        </Link>
-      </header>
-
-      <main id="top">
-        <section className="hero">
-          <div className="hero__copy">
-            <p className="hero__eyebrow">AI-powered support for ASD therapy</p>
-            <h1 className="hero__title">
-              Understand Every Expression.
-              <span> Support Every Journey.</span>
-            </h1>
-            <p className="hero__lead">
-              An AI-powered emotion recognition and progress-tracking platform
-              designed to support therapists and caregivers in ASD therapy.
-            </p>
-            <div className="hero__actions">
-              <Link to="/quiz" className="btn btn--primary btn--lg">
-                Explore the Platform
-                <span aria-hidden="true">→</span>
-              </Link>
-            </div>
+    <section id="home" className="chapter chapter--home">
+      <div className="hero">
+        <div className="hero__copy">
+          <p className="hero__eyebrow motion-in" style={{ '--d': '0ms' }}>
+            ASD therapy practice
+          </p>
+          <h1 className="hero__title motion-in" style={{ '--d': '90ms' }}>
+            Practice expressions.
+            <span> Track progress.</span>
+          </h1>
+          <p className="hero__lead motion-in" style={{ '--d': '170ms' }}>
+            Children practice facial emotions. Therapists see what improves.
+          </p>
+          <div className="hero__actions motion-in" style={{ '--d': '250ms' }}>
+            <Link to="/login" className="btn btn--primary btn--lg">
+              Sign in to start
+              <span aria-hidden="true">→</span>
+            </Link>
+            <a
+              href="/how-it-works"
+              className="btn btn--ghost btn--lg"
+              onClick={(event) => {
+                event.preventDefault()
+                jump('how-it-works')
+              }}
+            >
+              How it works
+            </a>
           </div>
+        </div>
 
-          <div className="hero__visual" aria-hidden="true">
-            <div className="hero__frame">
-              <img src={heroImage} alt="" className="hero__photo" />
-              <div className="hero__face-box" />
-              <aside className="hero__analysis">
-                <p className="hero__analysis-title">AI Emotion Analysis</p>
-                <ul>
-                  {EMOTIONS.map((emotion) => (
-                    <li key={emotion.label}>
-                      <span
-                        className="hero__dot"
-                        style={{ background: emotion.color }}
+        <div className="hero__visual motion-in" style={{ '--d': '180ms' }} aria-hidden="true">
+          <div className="hero__frame">
+            <img src={heroImage} alt="" className="hero__photo" />
+            <div className="hero__face-box">
+              <span className="hero__scan" />
+            </div>
+            <aside className="hero__analysis">
+              <p className="hero__analysis-title">Live emotion scores</p>
+              <ul>
+                {EMOTIONS.map((emotion, index) => (
+                  <li key={emotion.label} style={{ '--i': index }}>
+                    <span className="hero__dot" style={{ background: emotion.color }} />
+                    <span className="hero__emotion-label">{emotion.label}</span>
+                    <span className="hero__bar">
+                      <i
+                        style={{
+                          '--fill': `${emotion.value * 100}%`,
+                          background: emotion.color,
+                        }}
                       />
-                      <span className="hero__emotion-label">{emotion.label}</span>
-                      <span className="hero__bar">
-                        <i
-                          style={{
-                            width: `${emotion.value * 100}%`,
-                            background: emotion.color,
-                          }}
-                        />
-                      </span>
-                      <span className="hero__score">{emotion.value.toFixed(2)}</span>
-                    </li>
-                  ))}
-                </ul>
-              </aside>
-            </div>
+                    </span>
+                    <span className="hero__score">{emotion.value.toFixed(2)}</span>
+                  </li>
+                ))}
+              </ul>
+            </aside>
           </div>
-        </section>
-      </main>
-    </div>
+        </div>
+      </div>
+
+      <div className="band reveal">
+        <div className="section__intro">
+          <h2>Three tools in one flow</h2>
+          <p>Quiz, camera practice, then progress review.</p>
+        </div>
+        <div className="card-grid">
+          {OFFERS.map((item, index) => (
+            <article
+              key={item.title}
+              className="info-card reveal-child"
+              style={{ '--i': index }}
+            >
+              <h3>{item.title}</h3>
+              <p>{item.text}</p>
+              <a
+                href={item.sectionId === 'features' ? '/features' : '/how-it-works'}
+                className="text-link"
+                onClick={(event) => {
+                  event.preventDefault()
+                  jump(item.sectionId)
+                }}
+              >
+                Learn more
+              </a>
+            </article>
+          ))}
+        </div>
+      </div>
+
+      <div className="band band--split reveal">
+        <div>
+          <h2>One session, two views</h2>
+          <p>Children practice. Therapists review the same results.</p>
+        </div>
+        <ul className="check-list">
+          <li>Emotions: angry, fear, happy, neutral, sad, surprise</li>
+          <li>Harder emotions appear more often</li>
+          <li>Every attempt is saved to the session</li>
+        </ul>
+      </div>
+    </section>
   )
 }
-
-export default Landing

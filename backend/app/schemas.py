@@ -23,6 +23,16 @@ class PredictResponse(BaseModel):
 
 class ChildCreate(BaseModel):
     display_name: str = Field(..., min_length=1, max_length=100)
+    username: str = Field(..., min_length=3, max_length=80)
+    password: str = Field(..., min_length=4, max_length=80)
+    focus_emotions: list[str] = Field(default_factory=list)
+
+
+class ChildUpdate(BaseModel):
+    display_name: str | None = Field(default=None, min_length=1, max_length=100)
+    password: str | None = Field(default=None, min_length=4, max_length=80)
+    focus_emotions: list[str] | None = None
+    is_active: bool | None = None
 
 
 class ChildResponse(BaseModel):
@@ -31,6 +41,34 @@ class ChildResponse(BaseModel):
     id: int
     display_name: str
     created_at: datetime
+    username: str | None = None
+    password: str | None = None
+    focus_emotions: list[str] = Field(default_factory=list)
+    is_active: bool = True
+    session_count: int = 0
+    attempt_count: int = 0
+
+
+class LoginRequest(BaseModel):
+    username: str = Field(..., min_length=1, max_length=80)
+    password: str = Field(..., min_length=1, max_length=80)
+
+
+class LoginResponse(BaseModel):
+    token: str
+    role: Literal["admin", "child"]
+    user_id: int
+    display_name: str
+    child_id: int | None = None
+    username: str
+
+
+class MeResponse(BaseModel):
+    role: Literal["admin", "child"]
+    user_id: int
+    display_name: str
+    child_id: int | None = None
+    username: str
 
 
 class SessionCreate(BaseModel):
@@ -74,6 +112,27 @@ class AttemptResponse(BaseModel):
 class NextExerciseResponse(BaseModel):
     emotion: str
     mode: str
+    focus_emotions: list[str] = Field(default_factory=list)
+    reason: str | None = None
+
+
+class SessionSummaryEmotion(BaseModel):
+    emotion: str
+    correct: int
+    total: int
+
+
+class SessionSummaryResponse(BaseModel):
+    session_id: int
+    child_id: int
+    mode: str
+    started_at: datetime
+    ended_at: datetime | None = None
+    total: int
+    correct: int
+    accuracy: float | None = None
+    by_emotion: list[SessionSummaryEmotion]
+    hardest_emotion: str | None = None
 
 
 class EmotionAccuracy(BaseModel):

@@ -1,0 +1,109 @@
+.session-summary {
+  width: min(520px, 100%);
+  margin: 0 auto;
+  padding: 1.35rem 1.25rem;
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid #d7e3f2;
+  box-shadow: 0 12px 28px rgba(15, 39, 68, 0.08);
+  text-align: center;
+}
+
+.session-summary__eyebrow {
+  margin: 0 0 0.35rem;
+  color: #0ea5a4;
+  font-size: 0.78rem;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.session-summary h2 {
+  margin: 0 0 0.4rem;
+  color: #0f2744;
+  font-family: var(--display), Georgia, serif;
+}
+
+.session-summary__lead {
+  margin: 0 0 1rem;
+  color: #5b6f88;
+}
+
+.session-summary__stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.55rem;
+  margin-bottom: 1rem;
+}
+
+.session-summary__stats article {
+  padding: 0.75rem 0.4rem;
+  border-radius: 12px;
+  background: #f4f8fc;
+}
+
+.session-summary__stats strong {
+  display: block;
+  color: #1d6fd8;
+  font-size: 1.25rem;
+}
+
+.session-summary__stats span {
+  color: #5b6f88;
+  font-size: 0.85rem;
+  font-weight: 650;
+}
+
+.session-summary__emotions {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+  text-align: left;
+}
+
+.session-summary__emotions li {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.55rem 0.7rem;
+  border-radius: 10px;
+  border: 1px solid #e7eef7;
+  color: #334e6b;
+  font-weight: 650;
+}
+
+.session-summary__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  justify-content: center;
+}
+
+.session-summary__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  border: 1.5px solid #b7d1f5;
+  background: #fff;
+  color: #1d6fd8;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  font: inherit;
+}
+
+.session-summary__btn--primary {
+  background: #1d6fd8;
+  border-color: #1d6fd8;
+  color: #fff;
+}
+
+@media (max-width: 520px) {
+  .session-summary__stats {
+    grid-template-columns: 1fr;
+  }
+}

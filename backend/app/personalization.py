@@ -16,6 +16,7 @@ SCORED_SOURCES: tuple[str, ...] = ("quiz", "show_me")
 LAST_N_PER_EMOTION = 20
 MIN_SAMPLES = 3
 UNKNOWN_PRIOR = 0.5
+FOCUS_BOOST = 1.35
 
 
 def compute_emotion_weights(
@@ -77,12 +78,30 @@ def scored_attempts_for_child(db: Session, child_id: int) -> list[Attempt]:
     return list(db.scalars(statement))
 
 
-def next_exercise_for_child(db: Session, child_id: int) -> dict[str, str] | None:
+def next_exercise_for_child(db: Session, child_id: int) -> dict | None:
     child = db.get(Child, child_id)
     if child is None:
         return None
 
+    focus = [emotion for emotion in child.focus_list() if emotion in PROMPT_EMOTIONS]
+    pool = tuple(focus) if focus else PROMPT_EMOTIONS
     attempts = scored_attempts_for_child(db, child_id)
-    weights = compute_emotion_weights(attempts)
+    weights = compute_emotion_weights(attempts, emotions=pool)
+
+    # Still allow light exploration outside focus when focus is set.
+    if focus:
+        full_weights = compute_emotion_weights(attempts)
+        for emotion, weight in full_weights.items():
+            if emotion in weights:
+                weights[emotion] = max(weights[emotion], weight) * FOCUS_BOOST
+            else:
+                weights[emotion] = weight * 0.25
+
     emotion = pick_weighted_emotion(weights)
-    return {"emotion": emotion, "mode": "practice"}
+    reason = "focus" if emotion in focus else "weak_spot" if attempts else "explore"
+    return {
+        "emotion": emotion,
+        "mode": "practice",
+        "focus_emotions": focus,
+        "reason": reason,
+    }

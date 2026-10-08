@@ -12,11 +12,39 @@
   box-sizing: border-box;
 }
 
+.quiz-session__top {
+  display: grid;
+  gap: 0.35rem;
+  text-align: center;
+}
+
 .quiz-session__title {
   margin: 0;
   font-size: 1.75rem;
   font-weight: 600;
   color: #1a1a1a;
+}
+
+.quiz-session__progress {
+  margin: 0;
+  color: #1d6fd8;
+  font-weight: 700;
+}
+
+.quiz-session__end {
+  min-height: 2.4rem;
+  padding: 0.45rem 1rem;
+  border-radius: 10px;
+  border: 1.5px solid #b7d1f5;
+  background: #fff;
+  color: #1d6fd8;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.quiz-session__end:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .quiz-session__status {
