@@ -1,8 +1,13 @@
 import { API_BASE_URL, parseApiError } from './config'
+import { authHeaders, getSession } from './auth'
 
 const CHILD_ID_KEY = 'child_id'
 
 export function getStoredChildId() {
+  const session = getSession()
+  if (session?.role === 'child' && session.child_id) {
+    return String(session.child_id)
+  }
   return localStorage.getItem(CHILD_ID_KEY)
 }
 
@@ -10,11 +15,61 @@ export function storeChildId(childId) {
   localStorage.setItem(CHILD_ID_KEY, String(childId))
 }
 
-export async function postChild(displayName) {
+export async function postChild(displayName, username, password, focusEmotions = []) {
   const response = await fetch(`${API_BASE_URL}/children`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ display_name: displayName }),
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeaders(),
+    },
+    body: JSON.stringify({
+      display_name: displayName,
+      username,
+      password,
+      focus_emotions: focusEmotions,
+    }),
+  })
+
+  if (!response.ok) {
+    throw await parseApiError(response)
+  }
+
+  return response.json()
+}
+
+export async function updateChild(childId, payload) {
+  const response = await fetch(`${API_BASE_URL}/children/${childId}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeaders(),
+    },
+    body: JSON.stringify(payload),
+  })
+
+  if (!response.ok) {
+    throw await parseApiError(response)
+  }
+
+  return response.json()
+}
+
+export async function deleteChild(childId) {
+  const response = await fetch(`${API_BASE_URL}/children/${childId}`, {
+    method: 'DELETE',
+    headers: authHeaders(),
+  })
+
+  if (!response.ok) {
+    throw await parseApiError(response)
+  }
+
+  return response.json()
+}
+
+export async function getChild(childId) {
+  const response = await fetch(`${API_BASE_URL}/children/${childId}`, {
+    headers: authHeaders(),
   })
 
   if (!response.ok) {
@@ -52,27 +107,31 @@ export async function postAttempt(sessionId, attempt) {
   return response.json()
 }
 
-let childBootstrapPromise = null
+export async function endSession(sessionId) {
+  const response = await fetch(`${API_BASE_URL}/sessions/${sessionId}/end`, {
+    method: 'POST',
+  })
+
+  if (!response.ok) {
+    throw await parseApiError(response)
+  }
+
+  return response.json()
+}
 
 export async function ensureChild() {
-  const stored = localStorage.getItem('child_id')
+  const session = getSession()
+  if (session?.role === 'child' && session.child_id) {
+    storeChildId(session.child_id)
+    return session.child_id
+  }
+
+  const stored = localStorage.getItem(CHILD_ID_KEY)
   if (stored) {
     return Number(stored)
   }
 
-  if (!childBootstrapPromise) {
-    childBootstrapPromise = postChild('Child')
-      .then((child) => {
-        localStorage.setItem('child_id', String(child.id))
-        return child.id
-      })
-      .catch((error) => {
-        childBootstrapPromise = null
-        throw error
-      })
-  }
-
-  return childBootstrapPromise
+  throw new Error('Please log in as a child to start a session.')
 }
 
 export async function ensureChildAndSession(mode) {
@@ -91,8 +150,11 @@ export async function getNextExercise(childId) {
   return response.json()
 }
 
-export async function getChildren() {
-  const response = await fetch(`${API_BASE_URL}/children`)
+export async function getChildren(includeInactive = false) {
+  const query = includeInactive ? '?include_inactive=true' : ''
+  const response = await fetch(`${API_BASE_URL}/children${query}`, {
+    headers: authHeaders(),
+  })
 
   if (!response.ok) {
     throw await parseApiError(response)
@@ -102,7 +164,41 @@ export async function getChildren() {
 }
 
 export async function getDashboard(childId) {
-  const response = await fetch(`${API_BASE_URL}/dashboard/${childId}`)
+  const response = await fetch(`${API_BASE_URL}/dashboard/${childId}`, {
+    headers: authHeaders(),
+  })
+
+  if (!response.ok) {
+    throw await parseApiError(response)
+  }
+
+  return response.json()
+}
+
+export async function downloadDashboardCsv(childId) {
+  const response = await fetch(`${API_BASE_URL}/dashboard/${childId}/export.csv`, {
+    headers: authHeaders(),
+  })
+
+  if (!response.ok) {
+    throw await parseApiError(response)
+  }
+
+  const blob = await response.blob()
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `child-${childId}-progress.csv`
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  URL.revokeObjectURL(url)
+}
+
+export async function getChildSessions(childId) {
+  const response = await fetch(`${API_BASE_URL}/children/${childId}/sessions`, {
+    headers: authHeaders(),
+  })
 
   if (!response.ok) {
     throw await parseApiError(response)

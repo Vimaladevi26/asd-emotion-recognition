@@ -1,20 +1,32 @@
 import { useEffect, useRef, useState } from 'react'
 
+import SessionSummary from '../components/SessionSummary'
 import { QUIZ_EMOTIONS, getEmotionLabel } from '../constants/emotions'
 import { loadQuizManifest, pickQuestionForEmotion, pickRandomQuestion } from '../data/quizImages'
-import { ensureChildAndSession, getNextExercise, getStoredChildId, postAttempt } from '../api/tracking'
+import {
+  endSession,
+  ensureChildAndSession,
+  getNextExercise,
+  getStoredChildId,
+  postAttempt,
+} from '../api/tracking'
 import './QuizSession.css'
 
 const FEEDBACK_DELAY_MS = 1750
+const QUESTIONS_PER_SESSION = 5
 
 export default function QuizSession() {
   const advanceTimeoutRef = useRef(null)
   const sessionIdRef = useRef(null)
+  const answeredRef = useRef(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [manifest, setManifest] = useState(null)
   const [question, setQuestion] = useState(null)
   const [feedback, setFeedback] = useState(null)
+  const [answered, setAnswered] = useState(0)
+  const [summary, setSummary] = useState(null)
+  const [ending, setEnding] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -69,12 +81,40 @@ export default function QuizSession() {
     }
   }, [])
 
+  async function finishSession() {
+    if (!sessionIdRef.current) {
+      setSummary({
+        correct: 0,
+        total: answered,
+        accuracy: null,
+        by_emotion: [],
+        hardest_emotion: null,
+      })
+      return
+    }
+    setEnding(true)
+    try {
+      const payload = await endSession(sessionIdRef.current)
+      setSummary(payload)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not end session.')
+    } finally {
+      setEnding(false)
+    }
+  }
+
   async function showNextQuestion() {
     if (!manifest) {
       return
     }
 
     advanceTimeoutRef.current = null
+
+    if (answeredRef.current >= QUESTIONS_PER_SESSION) {
+      await finishSession()
+      return
+    }
+
     let nextQuestion = pickRandomQuestion(manifest)
     const childId = getStoredChildId()
     if (childId) {
@@ -90,7 +130,7 @@ export default function QuizSession() {
   }
 
   function handleAnswerClick(emotionId) {
-    if (feedback || !question) {
+    if (feedback || !question || summary) {
       return
     }
 
@@ -99,8 +139,10 @@ export default function QuizSession() {
 
     setFeedback({
       isCorrect,
-      message: isCorrect ? 'Great job! 🎉' : `Good try! That was ${correctLabel}.`,
+      message: isCorrect ? 'Great job!' : `Good try! That was ${correctLabel}.`,
     })
+    answeredRef.current += 1
+    setAnswered(answeredRef.current)
 
     if (sessionIdRef.current) {
       postAttempt(sessionIdRef.current, {
@@ -115,14 +157,47 @@ export default function QuizSession() {
       })
     }
 
-    advanceTimeoutRef.current = setTimeout(showNextQuestion, FEEDBACK_DELAY_MS)
+    advanceTimeoutRef.current = setTimeout(() => {
+      showNextQuestion()
+    }, FEEDBACK_DELAY_MS)
   }
 
-  const choicesDisabled = Boolean(feedback)
+  async function restartQuiz() {
+    setSummary(null)
+    answeredRef.current = 0
+    setAnswered(0)
+    setFeedback(null)
+    setLoading(true)
+    try {
+      const tracking = await ensureChildAndSession('quiz')
+      sessionIdRef.current = tracking.sessionId
+      let nextQuestion = pickRandomQuestion(manifest)
+      try {
+        const next = await getNextExercise(tracking.childId)
+        nextQuestion = pickQuestionForEmotion(manifest, next.emotion)
+      } catch {
+        // ignore
+      }
+      setQuestion(nextQuestion)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not restart quiz.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const choicesDisabled = Boolean(feedback) || Boolean(summary)
 
   return (
     <main className="quiz-session">
-      <h1 className="quiz-session__title">What&apos;s This?</h1>
+      <div className="quiz-session__top">
+        <h1 className="quiz-session__title">Emotion Quiz</h1>
+        {!summary && (
+          <p className="quiz-session__progress">
+            Question {Math.min(answered + 1, QUESTIONS_PER_SESSION)} of {QUESTIONS_PER_SESSION}
+          </p>
+        )}
+      </div>
 
       {loading && <p className="quiz-session__status">Loading quiz…</p>}
 
@@ -132,7 +207,15 @@ export default function QuizSession() {
         </p>
       )}
 
-      {!loading && !error && question && (
+      {summary && (
+        <SessionSummary
+          summary={summary}
+          modeLabel="Quiz"
+          onContinue={restartQuiz}
+        />
+      )}
+
+      {!loading && !error && !summary && question && (
         <>
           <figure className="quiz-session__figure">
             <img
@@ -175,6 +258,15 @@ export default function QuizSession() {
               </button>
             ))}
           </div>
+
+          <button
+            type="button"
+            className="quiz-session__end"
+            onClick={finishSession}
+            disabled={ending || answered === 0}
+          >
+            End session
+          </button>
         </>
       )}
     </main>

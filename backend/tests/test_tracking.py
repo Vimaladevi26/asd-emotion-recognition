@@ -7,9 +7,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
+from app.auth import seed_admin
 from app.db import Base, get_db
 from app.main import app
-from app.models import Attempt, Child, TherapySession  # noqa: F401
+from app.models import Attempt, AuthToken, Child, TherapySession, User  # noqa: F401
 
 engine = create_engine(
     "sqlite://",
@@ -18,6 +19,9 @@ engine = create_engine(
 )
 TestingSessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 Base.metadata.create_all(bind=engine)
+
+with TestingSessionLocal() as _seed_db:
+    seed_admin(_seed_db)
 
 
 def _override_get_db():
@@ -31,13 +35,37 @@ def _override_get_db():
 app.dependency_overrides[get_db] = _override_get_db
 client = TestClient(app)
 
+_child_counter = 0
+
+
+def _admin_headers() -> dict[str, str]:
+    response = client.post("/auth/login", json={"username": "admin", "password": "admin123"})
+    assert response.status_code == 200
+    return {"Authorization": f"Bearer {response.json()['token']}"}
+
+
+def _create_child(display_name: str = "Asha") -> dict:
+    global _child_counter
+    _child_counter += 1
+    headers = _admin_headers()
+    response = client.post(
+        "/children",
+        headers=headers,
+        json={
+            "display_name": display_name,
+            "username": f"child{_child_counter}",
+            "password": "pass1234",
+        },
+    )
+    assert response.status_code == 200
+    return response.json()
+
 
 def test_create_child_session_and_quiz_attempt():
-    child_response = client.post("/children", json={"display_name": "Asha"})
-    assert child_response.status_code == 200
-    child = child_response.json()
+    child = _create_child("Asha")
     assert child["display_name"] == "Asha"
     assert "id" in child
+    assert child["username"]
 
     session_response = client.post(
         "/sessions",
@@ -79,7 +107,7 @@ def test_next_exercise_unknown_child_returns_404():
 
 
 def test_next_exercise_returns_prompt_emotion():
-    child = client.post("/children", json={"display_name": "Asha"}).json()
+    child = _create_child("Asha")
     response = client.get(f"/next-exercise/{child['id']}")
     assert response.status_code == 200
     body = response.json()
@@ -88,20 +116,23 @@ def test_next_exercise_returns_prompt_emotion():
 
 
 def test_list_children_includes_created_child():
-    created = client.post("/children", json={"display_name": "Dashboard Kid"}).json()
-    listing = client.get("/children")
+    headers = _admin_headers()
+    created = _create_child("Dashboard Kid")
+    listing = client.get("/children", headers=headers)
     assert listing.status_code == 200
     ids = {row["id"] for row in listing.json()}
     assert created["id"] in ids
 
 
 def test_dashboard_unknown_child_returns_404():
-    response = client.get("/dashboard/99999")
+    headers = _admin_headers()
+    response = client.get("/dashboard/99999", headers=headers)
     assert response.status_code == 404
 
 
 def test_dashboard_splits_quiz_and_practice_accuracy():
-    child = client.post("/children", json={"display_name": "Asha"}).json()
+    headers = _admin_headers()
+    child = _create_child("Asha")
     quiz_session = client.post(
         "/sessions", json={"child_id": child["id"], "mode": "quiz"}
     ).json()
@@ -137,7 +168,7 @@ def test_dashboard_splits_quiz_and_practice_accuracy():
         },
     )
 
-    response = client.get(f"/dashboard/{child['id']}")
+    response = client.get(f"/dashboard/{child['id']}", headers=headers)
     assert response.status_code == 200
     body = response.json()
     quiz_happy = next(row for row in body["quiz"]["per_emotion"] if row["emotion"] == "happy")
@@ -151,3 +182,15 @@ def test_dashboard_splits_quiz_and_practice_accuracy():
     assert len(body["recent_attempts"]) == 3
     assert body["daily_trend"]
     assert body["session_trend"]
+
+
+def test_admin_and_child_login():
+    child = _create_child("Login Kid")
+    child_login = client.post(
+        "/auth/login",
+        json={"username": child["username"], "password": "pass1234"},
+    )
+    assert child_login.status_code == 200
+    body = child_login.json()
+    assert body["role"] == "child"
+    assert body["child_id"] == child["id"]

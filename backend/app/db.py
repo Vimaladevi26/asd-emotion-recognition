@@ -30,5 +30,24 @@ def get_db() -> Generator[Session, None, None]:
 
 def init_db() -> None:
     from app import models as _models  # noqa: F401
+    from sqlalchemy import inspect, text
 
     Base.metadata.create_all(bind=engine)
+
+    # Lightweight SQLite column migrations for existing local DBs.
+    inspector = inspect(engine)
+    if "children" not in inspector.get_table_names():
+        return
+
+    existing_children = {column["name"] for column in inspector.get_columns("children")}
+    with engine.begin() as connection:
+        if "focus_emotions" not in existing_children:
+            connection.execute(text("ALTER TABLE children ADD COLUMN focus_emotions VARCHAR(200)"))
+        if "is_active" not in existing_children:
+            connection.execute(text("ALTER TABLE children ADD COLUMN is_active BOOLEAN DEFAULT 1"))
+
+    if "users" in inspector.get_table_names():
+        existing_users = {column["name"] for column in inspector.get_columns("users")}
+        with engine.begin() as connection:
+            if "password_plain" not in existing_users:
+                connection.execute(text("ALTER TABLE users ADD COLUMN password_plain VARCHAR(80)"))
